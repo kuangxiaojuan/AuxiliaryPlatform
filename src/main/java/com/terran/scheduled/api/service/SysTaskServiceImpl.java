@@ -1,0 +1,105 @@
+package com.terran.scheduled.api.service;
+
+import com.terran.scheduled.api.config.CronTaskRegistrar;
+import com.terran.scheduled.api.config.SchedulingRunnable;
+import com.terran.scheduled.api.dao.SysAppConfigDao;
+import com.terran.scheduled.api.model.SysAppConfig;
+import com.terran.scheduled.api.model.SysJobConfig;
+import org.springframework.beans.factory.annotation.Autowired;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+public class SysTaskServiceImpl  implements ISysTaskService{
+    @Autowired
+    private CronTaskRegistrar cronTaskRegistrar;
+    @Autowired
+    private SysAppConfigDao sysAppConfigDao;
+
+    private static List<SysJobConfig> jobList;
+
+
+
+    /**
+     * 查询进行中的定时任务类
+     * 状态 0=正常；1=暂停
+     * @param status
+     */
+    @Override
+    public List<SysJobConfig> selectTask(int status) {
+        List<SysJobConfig> list = jobList.stream()
+                .filter(s -> Objects.equals(s.getJobStatus(), status))
+                .collect(Collectors.toList());
+        return list;
+    }
+    /**
+     * 添加定时任务
+     *
+     * @param jobVo
+     */
+    @Override
+    public void addTask(SysJobConfig jobVo) {
+        // 处理数据 插入数据库
+
+        // 判断定时任务是否开启
+        Integer jobStatus = jobVo.getJobStatus();
+        if (Objects.equals(jobStatus, 0)) {
+            this.changeTaskStatus(Boolean.TRUE, jobVo);
+        }
+
+    }
+    /**
+     * 修改定时任务
+     *
+     * @param jobVo
+     */
+    @Override
+    public void updateTask(SysJobConfig jobVo) {
+        // 获取数据库中已存在的数据
+
+        // 判断 原来的定时任务是否开启，如果开启，则先停止
+        /*if (Objects.equals(existJob.getJobStatus(), 0)) {
+            this.changeTaskStatus(Boolean.FALSE, existJob);
+        }*/
+
+        // 处理数据 插入数据库
+
+        // 判断定时任务是否开启
+        if (Objects.equals(jobVo.getJobStatus(), 0)) {
+            this.changeTaskStatus(Boolean.TRUE, jobVo);
+        }
+    }
+    /**
+     * 删除定时任务
+     *
+     * @param jobId
+     */
+    @Override
+    public void deleteTask(Integer jobId) {
+        // 获取数据库中已存在的数据
+
+        // 判断定时任务是否开启
+       /* if (Objects.equals(existJob.getJobStatus(), 0)) {
+            this.changeTaskStatus(Boolean.FALSE, existJob);
+        }*/
+
+        // 处理数据 插入数据库
+    }
+    /**
+     * 修改定时任务类状态
+     *
+     * @param add
+     * @param jobVo
+     */
+    private void changeTaskStatus(boolean add, SysJobConfig jobVo) {
+        if (add) {
+            SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
+        } else {
+            SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            cronTaskRegistrar.removeCronTask(task);
+        }
+    }
+}
