@@ -9,9 +9,9 @@
          <!-- lookup parent from repository -->
     </parent>
     <groupId>com.terran</groupId>
-    <artifactId>scheduled</artifactId>
+    <artifactId>AuxiliaryPlatform</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>scheduled</name>
+    <name>AuxiliaryPlatform</name>
     <description>scheduled project for Spring Boot</description>
 
     <properties>
