@@ -9,8 +9,10 @@ class ScheduledApplicationTests {
 
     @Test
     void contextLoads() {
-        SchedulingRunnable task = new SchedulingRunnable("testMethod","test1" );
-        task.run();
+        SchedulingRunnable task1 = new SchedulingRunnable("testMethod","test1" );
+        task1.run();
+        SchedulingRunnable task2 = new SchedulingRunnable("testMethod","test1","1","2","3");
+        task2.run();
     }
 
 }

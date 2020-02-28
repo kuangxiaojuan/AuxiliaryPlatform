@@ -1,16 +1,17 @@
 package com.terran.scheduled.api.service;
 
 import com.terran.scheduled.api.model.SysJobConfig;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 public interface ISysTaskService {
-    public List<SysJobConfig> selectTask(int status);
+    public List<SysJobConfig> selectTask(int status) throws Exception;
 
-    public void addTask(SysJobConfig jobVo);
+    public void addTask(SysJobConfig jobVo) throws Exception;
 
-    public void updateTask(SysJobConfig jobVo);
+    public void updateTask(SysJobConfig jobVo) throws Exception;
 
-    public void deleteTask(Integer jobId);
+    public void deleteTask(Integer jobId) throws Exception;
 
 }
