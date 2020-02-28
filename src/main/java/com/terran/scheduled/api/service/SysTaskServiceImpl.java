@@ -8,8 +8,13 @@ import com.terran.scheduled.api.model.SysAppConfig;
 import com.terran.scheduled.api.model.SysJobConfig;
 import com.terran.scheduled.api.utils.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -21,17 +26,31 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     @Autowired
     private SysJobConfigDao sysJobConfigDao;
     /**
-     * 查询进行中的定时任务类
+     * 查询进行中的定时任务类,不分页
      * 状态 0=正常；1=暂停
      * @param status
      */
     @Override
     public List<SysJobConfig> selectTask(int status) throws Exception{
-        List<SysJobConfig> jobList = sysJobConfigDao.findAll();
-        List<SysJobConfig> list = jobList.stream()
-                .filter(s -> Objects.equals(s.getJobStatus(), status))
-                .collect(Collectors.toList());
-        return list;
+        List<SysJobConfig> jobList = sysJobConfigDao.findByJobStatus(status);
+        return jobList;
+    }
+    /**
+     * 查询进行中的定时任务类,分页
+     * 状态 0=正常；1=暂停
+     * @param status
+     */
+    @Override
+    public Page<SysJobConfig> selectTaskByPage(int status, int pageNum, int pageSize) throws Exception{
+        Pageable pageable = PageRequest.of(pageNum,pageSize);
+        Specification<SysJobConfig> sysJobConfigSpecification = new Specification<SysJobConfig>() {
+            @Override
+            public Predicate toPredicate(Root<SysJobConfig> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                Path<String> jobStatus = root.get("jobStatus");
+                return criteriaBuilder.equal(jobStatus,status);
+            }
+        };
+        return sysJobConfigDao.findAll(sysJobConfigSpecification,pageable);
     }
     /**
      * 添加定时任务
@@ -63,7 +82,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
             this.changeTaskStatus(Boolean.FALSE, existJob);
         }
         // 处理数据 插入数据库
-        sysJobConfigDao.save(jobVo);
+        jobVo = sysJobConfigDao.save(jobVo);
         // 判断定时任务是否开启
         if (Objects.equals(jobVo.getJobStatus(), 0)) {
             this.changeTaskStatus(Boolean.TRUE, jobVo);

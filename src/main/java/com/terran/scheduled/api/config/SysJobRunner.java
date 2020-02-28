@@ -1,4 +1,4 @@
-﻿package com.terran.scheduled.api.config;
+package com.terran.scheduled.api.config;
 
 import com.alibaba.fastjson.JSON;
 import com.terran.scheduled.api.model.SysJobConfig;
