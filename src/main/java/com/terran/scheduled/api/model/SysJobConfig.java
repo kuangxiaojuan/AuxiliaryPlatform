@@ -18,7 +18,11 @@ public class SysJobConfig {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer jobId;
-
+    /**
+     * 定时任务名称
+     */
+    @Column(name = "name",length = 100)
+    private String name;
     /**
      * bean 名称
      */
