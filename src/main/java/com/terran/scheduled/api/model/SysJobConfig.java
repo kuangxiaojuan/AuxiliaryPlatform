@@ -1,8 +1,10 @@
 package com.terran.scheduled.api.model;
 
+import com.terran.scheduled.api.annotation.IsCron;
 import lombok.Data;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
 import java.util.Date;
 
 /**
@@ -21,17 +23,20 @@ public class SysJobConfig {
     /**
      * 定时任务名称
      */
+    @NotEmpty(message = "定时任务名称不得为空")
     @Column(name = "name",length = 100)
     private String name;
     /**
      * bean 名称
      */
+    @NotEmpty(message = "类名称不得为空")
     @Column(name = "bean_name",length = 100)
     private String beanName;
 
     /**
      * 方法名称
      */
+    @NotEmpty(message = "方法名称不得为空")
     @Column(name = "method_name",length = 100)
     private String methodName;
 
@@ -44,6 +49,7 @@ public class SysJobConfig {
     /**
      * cron表达式
      */
+    @IsCron@NotEmpty(message = "cron表达式不得为空")
     @Column(name = "cron_expression",length = 100)
     private String cronExpression;
 

@@ -8,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.transaction.Transactional;
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -20,6 +25,7 @@ import java.util.stream.Collectors;
 public class SysTaskAction {
     @Autowired
     private ISysTaskService sysTaskService;
+    private Object[] arguments;
 
     /**
      * 定时任务列表,0=正常；1=暂停
@@ -28,17 +34,25 @@ public class SysTaskAction {
      * @throws Exception
      */
     @RequestMapping(value = "/tasks",method = RequestMethod.GET)
-    public String  getTaskList(int status) throws Exception{
-        return JSON.toJSON(sysTaskService.selectTask(status)).toString();
+    public List<SysJobConfig>  getTaskList(int status) throws Exception{
+        return sysTaskService.selectTask(status);
 
     }
-    @RequestMapping(value = "/task/add",method = RequestMethod.GET)
-    public String  addTaskList() throws Exception{
-        return "/scheduled/add";
-    }
     @RequestMapping(value = "/task/save",method = RequestMethod.POST)
-    public String  saveTaskList(SysJobConfig sysJobConfig) throws Exception{
-        sysTaskService.addTask(sysJobConfig);
-        return "success";
+    public Map<String, Object>  saveTaskList(@Valid SysJobConfig sysJobConfig, BindingResult bindingResult) throws Exception{
+        Map<String,Object> map = new HashMap<String,Object>();
+        //JSR303校验
+        if(bindingResult.hasErrors()){
+            List<ObjectError> errorList = bindingResult.getAllErrors();
+            List<String> mesList = new ArrayList<String>();
+            for (ObjectError objectError : errorList) mesList.add(objectError.getDefaultMessage());
+            map.put("status", false);
+            map.put("error", mesList);
+        } else {
+            sysTaskService.addTask(sysJobConfig);
+            map.put("status", true);
+            map.put("msg", "添加成功");
+        }
+        return map;
     }
 }

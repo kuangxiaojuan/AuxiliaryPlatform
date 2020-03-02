@@ -2,11 +2,8 @@ package com.terran.scheduled.api.service;
 
 import com.terran.scheduled.api.config.CronTaskRegistrar;
 import com.terran.scheduled.api.config.SchedulingRunnable;
-import com.terran.scheduled.api.dao.SysAppConfigDao;
 import com.terran.scheduled.api.dao.SysJobConfigDao;
-import com.terran.scheduled.api.model.SysAppConfig;
 import com.terran.scheduled.api.model.SysJobConfig;
-import com.terran.scheduled.api.utils.SpringContextUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -15,10 +12,9 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
+
 @Service
 public class SysTaskServiceImpl  implements ISysTaskService{
     @Autowired
