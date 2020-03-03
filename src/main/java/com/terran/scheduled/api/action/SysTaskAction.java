@@ -6,6 +6,7 @@ import com.terran.scheduled.api.model.SysJobConfig;
 import com.terran.scheduled.api.service.ISysTaskService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
@@ -28,7 +29,7 @@ public class SysTaskAction {
     private Object[] arguments;
 
     /**
-     * 定时任务列表,0=正常；1=暂停
+     * 定时任务列表
      * @param status
      * @return
      * @throws Exception
@@ -54,5 +55,15 @@ public class SysTaskAction {
             map.put("msg", "添加成功");
         }
         return map;
+    }
+
+    /**
+     * cron表达式校验
+     * @param cronValue
+     * @return
+     */
+    @RequestMapping(value = "/validate/cron",method = RequestMethod.GET)
+    public boolean cronValidate(String cronValue){
+        return CronSequenceGenerator.isValidExpression(cronValue);
     }
 }
