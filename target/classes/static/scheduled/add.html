@@ -32,9 +32,7 @@
             <el-form-item label="状态" prop="jobStatus">
                 <el-switch v-model="sysJobConfig.jobStatus"
                            :active-value="1"
-                           :inactive-value="0"
-                           active-text="开启"
-                           inactive-text="关闭"/>
+                           :inactive-value="0"/>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
                 <el-input v-model="sysJobConfig.remark"/>
@@ -52,10 +50,8 @@
     var validateCron = (rule, value, callback) => {
         axios.get('/validate/cron?cronValue='+value).then((response)=>{
             if (response.data) callback();
-            else  callback(new Error('cron表达式不对，请重新输入'));
-        }).catch((error)=>{
-            console.log(error)
-        })
+            else callback(new Error('cron表达式不对，请重新输入'));
+        }).catch((error)=> console.log(error))
     };
     new Vue({
         el: '#app',
@@ -81,8 +77,8 @@
                         { required: true, message: '请输入方法名称', trigger: 'blur' }
                     ],
                     cronExpression:[
-                        { required: true, message: '请输入cron表达式', trigger: 'blur' },
-                        {validator: validateCron,trigger: 'blur' }
+                        { required : true, message: '请输入cron表达式', trigger: 'blur' },
+                        { validator: validateCron,trigger: 'blur' }
                     ],
                     remark:[
                         { required: true, message: '请输入备注', trigger: 'blur' }
@@ -112,7 +108,6 @@
                                 console.log(response)
                         })
                     }else{
-                        console.log("error submit!")
                         return false;
                     }
                 })

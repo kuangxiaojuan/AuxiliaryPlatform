@@ -35,6 +35,20 @@ public class SchedulingRunnable implements Runnable{
         this.methodName = methodName;
         this.params = params;
     }
+    //校验是否存在定时任务方法
+    public void schedulingValidate() throws Exception{
+        Object obj = SpringContextUtil.getBean(beanName);
+        Method method = null;
+        if (null != params && params.length > 0) {
+            Class<?>[] paramCls = new Class[params.length];
+            for (int i = 0; i < params.length; i++) {
+                paramCls[i] = params[i].getClass();
+            }
+            method = obj.getClass().getDeclaredMethod(methodName, paramCls);
+        } else {
+            method = obj.getClass().getDeclaredMethod(methodName);
+        }
+    }
     public void run() {
         log.info("定时任务开始执行：beanName:{},methodName:{},params:{}", beanName, methodName, params);
 

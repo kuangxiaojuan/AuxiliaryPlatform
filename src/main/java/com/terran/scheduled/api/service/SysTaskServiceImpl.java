@@ -23,7 +23,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     private SysJobConfigDao sysJobConfigDao;
     /**
      * 查询进行中的定时任务类,不分页
-     * 状态 0=正常；1=暂停
+     * 状态
      * @param status
      */
     @Override
@@ -55,14 +55,13 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      */
     @Override
     public void addTask(SysJobConfig jobVo) throws Exception{
-        // 处理数据 插入数据库
-        jobVo = sysJobConfigDao.save(jobVo);
-        // 判断定时任务是否开启
+        // 开启定时任务
         Integer jobStatus = jobVo.getJobStatus();
-        if (Objects.equals(jobStatus, 0)) {
+        if (Objects.equals(jobStatus, 1)) {
             this.changeTaskStatus(Boolean.TRUE, jobVo);
         }
-
+        // 处理数据 插入数据库
+        jobVo = sysJobConfigDao.save(jobVo);
     }
     /**
      * 修改定时任务
@@ -109,6 +108,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     private void changeTaskStatus(boolean add, SysJobConfig jobVo) throws Exception{
         if (add) {
             SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            task.schedulingValidate();//判断是否有该方法
             cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
         } else {
             SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
