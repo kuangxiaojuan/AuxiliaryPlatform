@@ -26,7 +26,6 @@ import java.util.stream.Collectors;
 public class SysTaskAction {
     @Autowired
     private ISysTaskService sysTaskService;
-    private Object[] arguments;
 
     /**
      * 定时任务列表
@@ -47,11 +46,11 @@ public class SysTaskAction {
             List<ObjectError> errorList = bindingResult.getAllErrors();
             List<String> mesList = new ArrayList<String>();
             for (ObjectError objectError : errorList) mesList.add(objectError.getDefaultMessage());
-            map.put("status", false);
+            map.put("code", false);
             map.put("error", mesList);
         } else {
             sysTaskService.addTask(sysJobConfig);
-            map.put("status", true);
+            map.put("code", true);
             map.put("msg", "添加成功");
         }
         return map;

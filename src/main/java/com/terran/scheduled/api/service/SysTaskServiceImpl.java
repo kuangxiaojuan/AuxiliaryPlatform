@@ -10,6 +10,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
 import java.util.List;
@@ -25,6 +26,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      * 查询进行中的定时任务类,不分页
      * 状态
      * @param status
+     * @return
      */
     @Override
     public List<SysJobConfig> selectTask(int status) throws Exception{
@@ -106,12 +108,19 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      * @param jobVo
      */
     private void changeTaskStatus(boolean add, SysJobConfig jobVo) throws Exception{
+        SchedulingRunnable task = null;
         if (add) {
-            SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            if(StringUtils.isEmpty(jobVo.getMethodParams()))
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName());
+            else
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
             task.schedulingValidate();//判断是否有该方法
             cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
         } else {
-            SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            if(StringUtils.isEmpty(jobVo.getMethodParams()))
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName());
+            else
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
             cronTaskRegistrar.removeCronTask(task);
         }
     }

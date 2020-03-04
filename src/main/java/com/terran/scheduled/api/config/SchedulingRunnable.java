@@ -4,6 +4,7 @@ package com.terran.scheduled.api.config;
 import com.terran.scheduled.api.utils.SpringContextUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -39,7 +40,7 @@ public class SchedulingRunnable implements Runnable{
     public void schedulingValidate() throws Exception{
         Object obj = SpringContextUtil.getBean(beanName);
         Method method = null;
-        if (null != params && params.length > 0) {
+        if (!StringUtils.isEmpty(params)&&params.length>0) {
             Class<?>[] paramCls = new Class[params.length];
             for (int i = 0; i < params.length; i++) {
                 paramCls[i] = params[i].getClass();
