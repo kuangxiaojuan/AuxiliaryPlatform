@@ -1,5 +1,6 @@
 package com.terran.scheduled.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.terran.scheduled.api.config.CronTaskRegistrar;
 import com.terran.scheduled.api.config.SchedulingRunnable;
 import com.terran.scheduled.api.dao.SysJobConfigDao;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.persistence.criteria.*;
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -29,9 +31,12 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      * @return
      */
     @Override
-    public List<SysJobConfig> selectTask(int status) throws Exception{
-        List<SysJobConfig> jobList = sysJobConfigDao.findByJobStatus(status);
+    public List<SysJobConfig> selectTasks() throws Exception{
+        List<SysJobConfig> jobList = sysJobConfigDao.findAll();
         return jobList;
+    }
+    public SysJobConfig selectTask(int id) throws Exception{
+        return sysJobConfigDao.getOne(id);
     }
     /**
      * 查询进行中的定时任务类,分页
@@ -63,6 +68,11 @@ public class SysTaskServiceImpl  implements ISysTaskService{
             this.changeTaskStatus(Boolean.TRUE, jobVo);
         }
         // 处理数据 插入数据库
+        if(StringUtils.isEmpty(jobVo.getJobId())) {
+            jobVo.setCreateTime(new Date());
+            jobVo.setUpdateTime(new Date());
+        }else jobVo.setUpdateTime(new Date());
+
         jobVo = sysJobConfigDao.save(jobVo);
     }
     /**
@@ -109,18 +119,14 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      */
     private void changeTaskStatus(boolean add, SysJobConfig jobVo) throws Exception{
         SchedulingRunnable task = null;
+        if(StringUtils.isEmpty(jobVo.getMethodParams()))
+            task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), null);
+        else
+            task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams().split(";"));
         if (add) {
-            if(StringUtils.isEmpty(jobVo.getMethodParams()))
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName());
-            else
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
             task.schedulingValidate();//判断是否有该方法
             cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
         } else {
-            if(StringUtils.isEmpty(jobVo.getMethodParams()))
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName());
-            else
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
             cronTaskRegistrar.removeCronTask(task);
         }
     }

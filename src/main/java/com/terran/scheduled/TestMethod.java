@@ -9,10 +9,11 @@ public class TestMethod {
     public void test1(){
         System.out.println("453454");
     }
-    public void test1(String a,String b,String c){
+    public void test1(String a,String b,String c,String f){
         System.out.println(a);
         System.out.println(b);
         System.out.println(c);
+        System.out.println(f);
         System.out.println("123654");
     }
 }

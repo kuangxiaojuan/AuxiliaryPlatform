@@ -15,10 +15,12 @@ public class SchedulingConfig {
          */
         ThreadPoolTaskScheduler poolTaskScheduler = new ThreadPoolTaskScheduler();
         // 定时任务执行线程池核心线程数
-        poolTaskScheduler.setPoolSize(4);
+        poolTaskScheduler.setPoolSize(5);
 
         // 开启 remove-on-cancel
+        //将取消后的任务从队列中清除
         poolTaskScheduler.setRemoveOnCancelPolicy(true);
+        //
         poolTaskScheduler.setWaitForTasksToCompleteOnShutdown(true);
         poolTaskScheduler.setAwaitTerminationSeconds(300);
         poolTaskScheduler.setThreadNamePrefix("ThreadPoolTaskScheduler--");

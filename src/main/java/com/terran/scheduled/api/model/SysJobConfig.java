@@ -1,7 +1,9 @@
 package com.terran.scheduled.api.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.terran.scheduled.api.annotation.IsCron;
 import lombok.Data;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
@@ -68,12 +70,16 @@ public class SysJobConfig {
     /**
      * 创建时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "create_time")
     private Date createTime;
 
     /**
      * 更新时间
      */
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss",timezone = "GMT+8")
+    @DateTimeFormat(pattern="yyyy-MM-dd HH:mm:ss")
     @Column(name = "update_time")
     private Date updateTime;
 }

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.List;
 
@@ -20,10 +21,14 @@ public class SysJobRunner implements CommandLineRunner {
     private CronTaskRegistrar cronTaskRegistrar;
     @Override
     public void run(String... args) throws Exception {
-        List<SysJobConfig> list = sysTaskService.selectTask(0);
+        List<SysJobConfig> list = sysTaskService.selectTasks();
         log.info(">>>>初始化定时任务 list={}", JSON.toJSON(list).toString());
         for (SysJobConfig jobVo : list) {
-            SchedulingRunnable task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
+            SchedulingRunnable task = null;
+            if(StringUtils.isEmpty(jobVo.getMethodParams()))
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), null);
+            else
+                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams());
             cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
         }
         log.info(">>>>>定时任务初始化完毕<<<<<");

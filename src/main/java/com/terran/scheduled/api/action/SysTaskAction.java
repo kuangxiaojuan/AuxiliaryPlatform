@@ -1,14 +1,12 @@
 package com.terran.scheduled.api.action;
 
 import com.alibaba.fastjson.JSON;
-import com.terran.scheduled.api.constant.ScheduledConstant;
 import com.terran.scheduled.api.model.SysJobConfig;
 import com.terran.scheduled.api.service.ISysTaskService;
+import com.terran.scheduled.api.utils.JsonResult;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.scheduling.support.CronSequenceGenerator;
 import org.springframework.stereotype.Controller;
-import org.springframework.util.StringUtils;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Controller@ResponseBody
 @Transactional(rollbackOn = Exception.class)
@@ -27,33 +24,31 @@ public class SysTaskAction {
     @Autowired
     private ISysTaskService sysTaskService;
 
-    /**
-     * 定时任务列表
-     * @param status
-     * @return
-     * @throws Exception
-     */
     @RequestMapping(value = "/tasks",method = RequestMethod.GET)
-    public List<SysJobConfig>  getTaskList(int status) throws Exception{
-        return sysTaskService.selectTask(status);
-
+    public List<SysJobConfig>  getTaskList() throws Exception{
+        return sysTaskService.selectTasks();
+    }
+    @RequestMapping(value = "/task/{id}",method = RequestMethod.GET)
+    public SysJobConfig getTask(@PathVariable int id) throws Exception{
+        return sysTaskService.selectTask(id);
+    }
+    @RequestMapping(value = "/task/{id}",method = RequestMethod.DELETE)
+    public String delTask(@PathVariable int id) throws Exception{
+        sysTaskService.deleteTask(id);
+        return JsonResult.success();
     }
     @RequestMapping(value = "/task/save",method = RequestMethod.POST)
-    public Map<String, Object>  saveTaskList(@Valid SysJobConfig sysJobConfig, BindingResult bindingResult) throws Exception{
-        Map<String,Object> map = new HashMap<String,Object>();
+    public String  saveTaskList(@Valid SysJobConfig sysJobConfig, BindingResult bindingResult) throws Exception{
         //JSR303校验
         if(bindingResult.hasErrors()){
             List<ObjectError> errorList = bindingResult.getAllErrors();
             List<String> mesList = new ArrayList<String>();
             for (ObjectError objectError : errorList) mesList.add(objectError.getDefaultMessage());
-            map.put("code", false);
-            map.put("error", mesList);
+            return JsonResult.fail(JSON.toJSONString(mesList));
         } else {
             sysTaskService.addTask(sysJobConfig);
-            map.put("code", true);
-            map.put("msg", "添加成功");
+            return JsonResult.success();
         }
-        return map;
     }
 
     /**

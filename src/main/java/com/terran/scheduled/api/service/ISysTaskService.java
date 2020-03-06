@@ -6,7 +6,7 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface ISysTaskService {
-    public List<SysJobConfig> selectTask(int status) throws Exception;
+    public List<SysJobConfig> selectTasks() throws Exception;
 
     public Page<SysJobConfig> selectTaskByPage(int status, int pageNum, int pageSize) throws Exception;
 
@@ -16,4 +16,5 @@ public interface ISysTaskService {
 
     public void deleteTask(Integer jobId) throws Exception;
 
+    public SysJobConfig selectTask(int id) throws Exception;
 }

@@ -62,7 +62,7 @@ public class SchedulingRunnable implements Runnable{
 
             // 获取到bean里面的方法
             Method method = null;
-            if (null != params && params.length > 0) {
+            if (!StringUtils.isEmpty(params)&&params.length>0) {
                 Class<?>[] paramCls = new Class[params.length];
                 for (int i = 0; i < params.length; i++) {
                     paramCls[i] = params[i].getClass();
