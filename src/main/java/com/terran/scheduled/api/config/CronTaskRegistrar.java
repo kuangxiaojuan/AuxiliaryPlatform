@@ -50,7 +50,6 @@ public class CronTaskRegistrar  implements DisposableBean {
         if (scheduledTask != null) {
             scheduledTask.cancel();
         }
-        System.out.println(scheduledTaskMap.size());
     }
     /**
      * 调用线程池
