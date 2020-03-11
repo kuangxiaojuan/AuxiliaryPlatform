@@ -3,6 +3,7 @@ package com.terran.scheduled.api.service;
 import com.alibaba.fastjson.JSON;
 import com.terran.scheduled.api.config.CronTaskRegistrar;
 import com.terran.scheduled.api.config.SchedulingRunnable;
+import com.terran.scheduled.api.constant.ScheduledConstant;
 import com.terran.scheduled.api.dao.SysJobConfigDao;
 import com.terran.scheduled.api.model.SysJobConfig;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +65,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     public void addTask(SysJobConfig jobVo) throws Exception{
         // 开启定时任务
         Integer jobStatus = jobVo.getJobStatus();
-        if (Objects.equals(jobStatus, 1)) {
+        if (Objects.equals(jobStatus, ScheduledConstant.STATE_START)) {
             this.changeTaskStatus(Boolean.TRUE, jobVo);
         }
         // 处理数据 插入数据库
@@ -85,13 +86,13 @@ public class SysTaskServiceImpl  implements ISysTaskService{
         // 获取数据库中已存在的数据
         SysJobConfig existJob = sysJobConfigDao.getOne(jobVo.getJobId());
         // 判断 原来的定时任务是否开启，如果开启，则先停止
-        if (Objects.equals(existJob.getJobStatus(), 0)) {
+        if (Objects.equals(existJob.getJobStatus(), ScheduledConstant.STATE_START)) {
             this.changeTaskStatus(Boolean.FALSE, existJob);
         }
         // 处理数据 插入数据库
         jobVo = sysJobConfigDao.save(jobVo);
         // 判断定时任务是否开启
-        if (Objects.equals(jobVo.getJobStatus(), 0)) {
+        if (Objects.equals(jobVo.getJobStatus(), ScheduledConstant.STATE_START)) {
             this.changeTaskStatus(Boolean.TRUE, jobVo);
         }
     }
@@ -104,8 +105,9 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     public void deleteTask(Integer jobId) throws Exception{
         // 获取数据库中已存在的数据
         SysJobConfig existJob = sysJobConfigDao.getOne(jobId);
+        System.out.println(existJob);
         // 判断定时任务是否开启
-        if (Objects.equals(existJob.getJobStatus(), 0)) {
+        if (Objects.equals(existJob.getJobStatus(), ScheduledConstant.STATE_START)) {
             this.changeTaskStatus(Boolean.FALSE, existJob);
         }
         // 处理数据 删除数据

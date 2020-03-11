@@ -7,6 +7,7 @@ import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.Objects;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
@@ -93,17 +94,17 @@ public class SchedulingRunnable implements Runnable{
                     methodName.equals(that.methodName) &&
                     that.params == null;
         }
-
+        //同理没注意params是数组对象，地址不一致，用Arrays.equals轮询相等
         return beanName.equals(that.beanName) &&
                 methodName.equals(that.methodName) &&
-                params.equals(that.params);
+                Arrays.equals(params,that.params);
     }
     @Override
     public int hashCode() {
         if (params == null) {
             return Objects.hash(beanName, methodName);
         }
-
-        return Objects.hash(beanName, methodName, params);
+        //坑爹啊，数组是没有hashCode()方法，数组用Arrays.hashCode()包起来
+        return Objects.hash(beanName, methodName, Arrays.hashCode(params));
     }
 }
