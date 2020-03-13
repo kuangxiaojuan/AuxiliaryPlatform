@@ -72,7 +72,7 @@ public class SchedulingRunnable implements Runnable{
             } else {
                 method = target.getClass().getDeclaredMethod(methodName);
             }
-            ReflectionUtils.makeAccessible(method);
+            ReflectionUtils.makeAccessible(method);//将一个方法设置为可调用，主要针对private方法;
             if (null != params && params.length > 0) {
                 method.invoke(target, params);
             } else {
