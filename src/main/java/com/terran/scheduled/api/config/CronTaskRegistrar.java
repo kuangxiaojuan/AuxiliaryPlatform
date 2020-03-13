@@ -16,12 +16,6 @@ public class CronTaskRegistrar  implements DisposableBean {
     private final Map<Runnable, ScheduledTask> scheduledTaskMap = new ConcurrentHashMap<>();
     @Autowired
     private TaskScheduler taskScheduler;
-
-    public Map<Runnable, ScheduledTask> getScheduledTaskMap() {
-        System.out.println("--获取当前执行的定时任务--");
-        return scheduledTaskMap;
-    }
-
     /**
      * 添加定时任务类
      *
