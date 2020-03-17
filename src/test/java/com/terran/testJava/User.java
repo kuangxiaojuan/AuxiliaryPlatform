@@ -1,7 +1,9 @@
 package com.terran.testJava;
 
-import java.util.Objects;
+import lombok.Data;
 
+import java.util.Objects;
+@Data
 public class User {
     private String beanName;
     private String methodName;
@@ -21,6 +23,6 @@ public class User {
 
     @Override
     public int hashCode() {
-        return 1;
+        return Objects.hash(this.beanName,this.methodName);
     }
 }

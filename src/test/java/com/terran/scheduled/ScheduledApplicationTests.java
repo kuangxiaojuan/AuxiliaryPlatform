@@ -1,5 +1,6 @@
 package com.terran.scheduled;
 
+import com.terran.scheduled.api.annotation.TimerConfig;
 import com.terran.scheduled.api.config.CronTaskRegistrar;
 import com.terran.scheduled.api.config.SchedulingRunnable;
 import com.terran.scheduled.api.service.ISysTaskService;
@@ -28,5 +29,11 @@ class ScheduledApplicationTests {
         String[] txt = new String[]{"1","2","3","4"};
         SchedulingRunnable task1 = new SchedulingRunnable("testMethod","test1",txt);
         SchedulingRunnable task2 = new SchedulingRunnable("testMethod","test1",txt);
+        System.out.println(task1.equals(task2));
+    }
+    @Test
+    void testAuto(){
+        Class a = TestMethod.class;
+        System.out.println(a.isAnnotationPresent(TimerConfig.class));
     }
 }

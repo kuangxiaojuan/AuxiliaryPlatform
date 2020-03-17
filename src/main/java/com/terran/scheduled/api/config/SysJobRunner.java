@@ -31,6 +31,7 @@ public class SysJobRunner implements CommandLineRunner {
                 task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams().split(";"));
             cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
         }
+        System.out.println("后");
         log.info(">>>>>定时任务初始化完毕<<<<<");
     }
 }

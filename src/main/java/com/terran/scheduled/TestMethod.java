@@ -1,10 +1,10 @@
 package com.terran.scheduled;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import com.terran.scheduled.api.annotation.Timer;
+import com.terran.scheduled.api.annotation.TimerConfig;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component@TimerConfig
 public class TestMethod {
     public void test1(){
         System.out.println("453454");
@@ -15,5 +15,9 @@ public class TestMethod {
         System.out.println(c);
         System.out.println(f);
         System.out.println("123654");
+    }
+    @Timer(name="测试自动定时任务",cronExpression = "10 * * * * ? ",remark = "XXX")
+    public void test2(){
+        System.out.println("--------------业务-------------");
     }
 }

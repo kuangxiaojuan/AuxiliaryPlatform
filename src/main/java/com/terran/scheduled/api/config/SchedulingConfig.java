@@ -1,5 +1,6 @@
 package com.terran.scheduled.api.config;
 
+import com.terran.scheduled.api.annotation.handler.TimerAutoConfig;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.TaskScheduler;
@@ -26,4 +27,6 @@ public class SchedulingConfig {
         poolTaskScheduler.setThreadNamePrefix("ThreadPoolTaskScheduler--");
         return poolTaskScheduler;
     }
+    @Bean
+    public TimerAutoConfig annotationScan(){return new TimerAutoConfig();}
 }
