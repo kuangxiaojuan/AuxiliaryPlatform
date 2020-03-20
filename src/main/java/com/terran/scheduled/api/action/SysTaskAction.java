@@ -12,13 +12,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
+import sun.misc.Request;
 
 import javax.transaction.Transactional;
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @RestController
 @Transactional(rollbackOn = Exception.class)
@@ -26,10 +25,21 @@ public class SysTaskAction {
     @Autowired
     private ISysTaskService sysTaskService;
 
+    /**
+     * 获取所有定时任务
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/tasks",method = RequestMethod.GET)
     public List<SysJobConfig>  getTaskList() throws Exception{
         return sysTaskService.selectTasks();
     }
+
+    /**
+     * 获取当前执行定时任务列表
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/runningTasks",method = RequestMethod.GET)
     public List<String> getRunningJob() throws Exception{
         List<String> list = new ArrayList<>();
@@ -47,15 +57,37 @@ public class SysTaskAction {
         });
         return list;
     }
+
+    /**
+     * 获取指定定时任务
+     * @param id
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/task/{id}",method = RequestMethod.GET)
     public SysJobConfig getTask(@PathVariable int id) throws Exception{
         return sysTaskService.selectTask(id);
     }
+
+    /**
+     * 删除指定定时任务
+     * @param id
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/task/{id}",method = RequestMethod.DELETE)
     public String delTask(@PathVariable int id) throws Exception{
         sysTaskService.deleteTask(id);
         return JsonResult.success();
     }
+
+    /**
+     * 更新添加定时任务
+     * @param sysJobConfig
+     * @param bindingResult
+     * @return
+     * @throws Exception
+     */
     @RequestMapping(value = "/task/save",method = RequestMethod.POST)
     public String  saveTaskList(@Valid SysJobConfig sysJobConfig, BindingResult bindingResult) throws Exception{
         //JSR303校验
@@ -69,14 +101,38 @@ public class SysTaskAction {
             return JsonResult.success();
         }
     }
-
     /**
      * cron表达式校验
      * @param cronValue
      * @return
      */
     @RequestMapping(value = "/validate/cron",method = RequestMethod.GET)
-    public boolean cronValidate(String cronValue){
+    public boolean cronValidate(String cronValue) throws Exception{
         return CronSequenceGenerator.isValidExpression(cronValue);
+    }
+    @RequestMapping(value = "/task/next/{id}",method = RequestMethod.GET)
+    public List<String> cronNextTask(@PathVariable Integer id) throws Exception {
+       SysJobConfig sysJobConfig = sysTaskService.selectTask(id);
+        List<String> retlist = new ArrayList<>();
+
+       SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+       if(CronSequenceGenerator.isValidExpression(sysJobConfig.getCronExpression())){
+           CronSequenceGenerator cronSequenceGenerator = new CronSequenceGenerator(sysJobConfig.getCronExpression());
+           Date currentTime = new Date();
+
+           Date time1 = cronSequenceGenerator.next(currentTime);
+           Date time2 = cronSequenceGenerator.next(time1);
+           Date time3 = cronSequenceGenerator.next(time2);
+           Date time4 = cronSequenceGenerator.next(time3);
+           Date time5 = cronSequenceGenerator.next(time4);
+           Date time6 = cronSequenceGenerator.next(time5);
+
+           retlist.add(sdf.format(time2));//下一次运行时间
+           retlist.add(sdf.format(time3));//下一次运行时间
+           retlist.add(sdf.format(time4));//下一次运行时间
+           retlist.add(sdf.format(time5));//下一次运行时间
+           retlist.add(sdf.format(time6));//下一次运行时间
+       }
+        return retlist;
     }
 }
