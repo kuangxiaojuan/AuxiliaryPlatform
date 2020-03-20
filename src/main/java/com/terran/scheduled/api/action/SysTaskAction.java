@@ -1,6 +1,8 @@
 package com.terran.scheduled.api.action;
 
 import com.alibaba.fastjson.JSON;
+import com.terran.scheduled.api.config.ScheduledTask;
+import com.terran.scheduled.api.config.SchedulingRunnable;
 import com.terran.scheduled.api.model.SysJobConfig;
 import com.terran.scheduled.api.service.ISysTaskService;
 import com.terran.scheduled.api.utils.JsonResult;
@@ -27,6 +29,23 @@ public class SysTaskAction {
     @RequestMapping(value = "/tasks",method = RequestMethod.GET)
     public List<SysJobConfig>  getTaskList() throws Exception{
         return sysTaskService.selectTasks();
+    }
+    @RequestMapping(value = "/runningTasks",method = RequestMethod.GET)
+    public List<String> getRunningJob() throws Exception{
+        List<String> list = new ArrayList<>();
+        sysTaskService.selectRunningJob().forEach((running,scheduledTask)->{
+            SchedulingRunnable schedulingRunnable = (SchedulingRunnable)running;
+            String values = schedulingRunnable.getBeanName() + "==" + schedulingRunnable.getMethodName();
+            if(schedulingRunnable.getParams()!=null){
+                String param = "";
+                for (String s : (String[]) schedulingRunnable.getParams()) {
+                    param +=  s +";";
+                }
+                values += "=="+ param;
+            }
+            list.add(values);
+        });
+        return list;
     }
     @RequestMapping(value = "/task/{id}",method = RequestMethod.GET)
     public SysJobConfig getTask(@PathVariable int id) throws Exception{

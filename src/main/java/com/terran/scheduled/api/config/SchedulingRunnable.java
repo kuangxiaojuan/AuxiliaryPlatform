@@ -2,6 +2,7 @@ package com.terran.scheduled.api.config;
 
 
 import com.terran.scheduled.api.utils.SpringContextUtil;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -17,16 +18,20 @@ public class SchedulingRunnable implements Runnable{
     /**
      * Bean 名称
      */
+    @Getter
     private String beanName;
 
     /**
      * 方法 名称
      */
+    @Getter
     private String methodName;
     /**
      * 参数
      */
+    @Getter
     private Object[] params;
+
     public SchedulingRunnable(String beanName, String methodName) {
         this.beanName = beanName;
         this.methodName = methodName;

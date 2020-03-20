@@ -1,5 +1,6 @@
 package com.terran.scheduled.api.config;
 
+import lombok.Getter;
 import org.springframework.beans.factory.DisposableBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.TaskScheduler;
@@ -13,6 +14,7 @@ public class CronTaskRegistrar  implements DisposableBean {
     /**
      * 存放定时任务
      */
+    @Getter
     private final Map<Runnable, ScheduledTask> scheduledTaskMap = new ConcurrentHashMap<>();
     @Autowired
     private TaskScheduler taskScheduler;

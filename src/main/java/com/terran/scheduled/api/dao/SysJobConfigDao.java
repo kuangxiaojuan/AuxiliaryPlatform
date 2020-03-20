@@ -10,4 +10,7 @@ import java.util.List;
 @Repository
 public interface SysJobConfigDao  extends JpaRepository<SysJobConfig,Integer>, JpaSpecificationExecutor<SysJobConfig> {
     List<SysJobConfig> findByJobStatus(int jobStatus);
+    List<SysJobConfig> findByBeanNameAndMethodNameAndMethodParams(String beanName,String method,String params);
+    SysJobConfig save(SysJobConfig sysJobConfig);
+    SysJobConfig saveAndFlush(SysJobConfig sysJobConfig);
 }

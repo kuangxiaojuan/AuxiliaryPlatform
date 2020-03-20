@@ -1,6 +1,7 @@
 package com.terran.scheduled.api.config;
 
 import com.alibaba.fastjson.JSON;
+import com.terran.scheduled.api.constant.ScheduledConstant;
 import com.terran.scheduled.api.model.SysJobConfig;
 import com.terran.scheduled.api.service.ISysTaskService;
 import org.slf4j.Logger;
@@ -25,13 +26,14 @@ public class SysJobRunner implements CommandLineRunner {
         log.info(">>>>初始化定时任务 list={}", JSON.toJSON(list).toString());
         for (SysJobConfig jobVo : list) {
             SchedulingRunnable task = null;
-            if(StringUtils.isEmpty(jobVo.getMethodParams()))
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), null);
-            else
-                task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams().split(";"));
-            cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
+            if(jobVo.getJobStatus().equals(ScheduledConstant.STATE_START)){
+                if(StringUtils.isEmpty(jobVo.getMethodParams()))
+                    task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), null);
+                else
+                    task = new SchedulingRunnable(jobVo.getBeanName(), jobVo.getMethodName(), jobVo.getMethodParams().split(";"));
+                cronTaskRegistrar.addCronTask(task, jobVo.getCronExpression());
+            }
         }
-        System.out.println("后");
         log.info(">>>>>定时任务初始化完毕<<<<<");
     }
 }

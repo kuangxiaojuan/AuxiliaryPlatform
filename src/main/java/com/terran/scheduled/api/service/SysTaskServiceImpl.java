@@ -2,6 +2,7 @@ package com.terran.scheduled.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.terran.scheduled.api.config.CronTaskRegistrar;
+import com.terran.scheduled.api.config.ScheduledTask;
 import com.terran.scheduled.api.config.SchedulingRunnable;
 import com.terran.scheduled.api.constant.ScheduledConstant;
 import com.terran.scheduled.api.dao.SysJobConfigDao;
@@ -17,6 +18,7 @@ import org.springframework.util.StringUtils;
 import javax.persistence.criteria.*;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 @Service
@@ -33,11 +35,28 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      */
     @Override
     public List<SysJobConfig> selectTasks() throws Exception{
-        List<SysJobConfig> jobList = sysJobConfigDao.findAll();
-        return jobList;
+        return sysJobConfigDao.findAll();
     }
+    @Override
+    public Map<Runnable, ScheduledTask> selectRunningJob() throws Exception{
+        return cronTaskRegistrar.getScheduledTaskMap();
+    }
+    @Override
     public SysJobConfig selectTask(int id) throws Exception{
         return sysJobConfigDao.getOne(id);
+    }
+    @Override
+    public SysJobConfig save(SysJobConfig sysJobConfig) {
+        return sysJobConfigDao.save(sysJobConfig);
+    }
+    @Override
+    public SysJobConfig saveAndFlush(SysJobConfig sysJobConfig) {
+        return sysJobConfigDao.saveAndFlush(sysJobConfig);
+    }
+    public SysJobConfig findByBeanNameAndMethodNameAndMethodParams(String beanName,String method,String params) throws Exception{
+        List<SysJobConfig> sysJobConfigs = sysJobConfigDao.findByBeanNameAndMethodNameAndMethodParams(beanName,method,params);
+        if(sysJobConfigs!=null&&sysJobConfigs.size()>0) return sysJobConfigs.get(0);
+        return null;
     }
     /**
      * 查询进行中的定时任务类,分页
@@ -63,6 +82,10 @@ public class SysTaskServiceImpl  implements ISysTaskService{
      */
     @Override
     public void addTask(SysJobConfig jobVo) throws Exception{
+        if(!StringUtils.isEmpty(jobVo.getJobId())){
+            updateTask(jobVo);
+            return;
+        }
         // 开启定时任务
         Integer jobStatus = jobVo.getJobStatus();
         if (Objects.equals(jobStatus, ScheduledConstant.STATE_START)) {

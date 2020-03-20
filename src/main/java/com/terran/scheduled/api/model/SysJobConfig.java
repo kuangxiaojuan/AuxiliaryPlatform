@@ -13,7 +13,11 @@ import java.util.Date;
  * 定时任务列表
  */
 @Entity
-@Table(name = "sys_job_config")
+@Table(name = "sys_job_config",
+    uniqueConstraints = {
+        @UniqueConstraint(name = "定时任务唯一索引",columnNames = {"bean_name","method_name","method_params"})
+    }
+)
 @Data
 public class SysJobConfig {
     /**
