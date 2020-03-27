@@ -5,7 +5,7 @@ import lombok.Data;
 
 @Data
 public class JsonResult {
-    private int code; //1 成功
+    private int code; // 1成功  0失败
     private String msg; // 消息
     private String data; //数据
     public JsonResult(){}

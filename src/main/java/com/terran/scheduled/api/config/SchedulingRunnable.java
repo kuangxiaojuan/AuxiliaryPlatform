@@ -1,20 +1,34 @@
 package com.terran.scheduled.api.config;
 
 
+import com.terran.log.dao.SysJobLogDao;
+import com.terran.log.model.SysJobLog;
+import com.terran.log.service.ISysJobLogService;
+import com.terran.scheduled.api.dao.SysJobConfigDao;
+import com.terran.scheduled.api.model.SysJobConfig;
+import com.terran.scheduled.api.service.ISysTaskService;
 import com.terran.scheduled.api.utils.SpringContextUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
 @Slf4j
 public class SchedulingRunnable implements Runnable{
+
+    @Autowired
+    private ISysJobLogService sysJobLogService;
+
+    @Autowired
+    private ISysTaskService sysTaskService;
     /**
      * Bean 名称
      */
@@ -55,6 +69,18 @@ public class SchedulingRunnable implements Runnable{
         } else {
             method = obj.getClass().getDeclaredMethod(methodName);
         }
+    }
+    private int getSysJobConfig() {
+        //目前只支持string类型的参数
+        String paramTemps = "";
+        for (Object param : params) {
+            paramTemps += param + ";";
+        }
+        try {
+            SysJobConfig sysJobConfig = sysTaskService.findByBeanNameAndMethodNameAndMethodParams(beanName, methodName, paramTemps);
+            return sysJobConfig.getJobId();
+        }catch(Exception e){}
+        return -1;
     }
     public void run() {
         log.info("定时任务开始执行：beanName:{},methodName:{},params:{}", beanName, methodName, params);
