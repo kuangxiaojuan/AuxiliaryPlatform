@@ -1,7 +1,5 @@
-﻿package com.terran.log.dao;
-
-import com.terran.log.model.SysJobLog;
-import com.terran.scheduled.api.model.SysJobConfig;
+package com.terran.scheduled.api.dao;
+import com.terran.scheduled.api.model.SysJobLog;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

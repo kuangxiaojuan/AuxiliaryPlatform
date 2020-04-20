@@ -1,34 +1,26 @@
 package com.terran.scheduled.api.config;
 
 
-import com.terran.log.dao.SysJobLogDao;
-import com.terran.log.model.SysJobLog;
-import com.terran.log.service.ISysJobLogService;
-import com.terran.scheduled.api.dao.SysJobConfigDao;
+
 import com.terran.scheduled.api.model.SysJobConfig;
+import com.terran.scheduled.api.model.SysJobLog;
+import com.terran.scheduled.api.service.ISysJobLogService;
 import com.terran.scheduled.api.service.ISysTaskService;
 import com.terran.scheduled.api.utils.SpringContextUtil;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.SpringApplication;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 import static org.apache.logging.log4j.util.Strings.isBlank;
 
 @Slf4j
 public class SchedulingRunnable implements Runnable{
-
-    @Autowired
-    private ISysJobLogService sysJobLogService;
-
-    @Autowired
-    private ISysTaskService sysTaskService;
     /**
      * Bean 名称
      */
@@ -70,17 +62,36 @@ public class SchedulingRunnable implements Runnable{
             method = obj.getClass().getDeclaredMethod(methodName);
         }
     }
-    private int getSysJobConfig() {
+    //日志记录
+    private void setSysJobConfig(Date startTime,Date endTime,long time,String className,String methodName,boolean resultFlag,String throwsException) {
+        ISysTaskService sysTaskService = (ISysTaskService)SpringContextUtil.getBean("sysTaskServiceImp");
+        ISysJobLogService sysJobLogService = (ISysJobLogService) SpringContextUtil.getBean("sysJobLogServiceImp");
         //目前只支持string类型的参数
         String paramTemps = "";
-        for (Object param : params) {
-            paramTemps += param + ";";
+        if(params!=null){
+            for (Object param : params) {
+                paramTemps += param + ";";
+            }
+            paramTemps = paramTemps.substring(0,paramTemps.length() - 1);
         }
         try {
             SysJobConfig sysJobConfig = sysTaskService.findByBeanNameAndMethodNameAndMethodParams(beanName, methodName, paramTemps);
-            return sysJobConfig.getJobId();
-        }catch(Exception e){}
-        return -1;
+            if(sysJobConfig.getJobId()!= -1){
+                SysJobLog sysJobLog = new SysJobLog();
+                sysJobLog.setForeignId(sysJobConfig.getJobId());
+                sysJobLog.setStartTime(startTime);
+                sysJobLog.setEndTime(endTime);
+                sysJobLog.setClassName(className);
+                sysJobLog.setMethodName(methodName);
+                sysJobLog.setTime(time);
+                sysJobLog.setTitleName(sysJobConfig.getName());
+                sysJobLog.setResultFlag(resultFlag);
+                if(resultFlag == Boolean.FALSE)sysJobLog.setThrowsException(throwsException);
+                sysJobLogService.save(sysJobLog);
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+        }
     }
     public void run() {
         log.info("定时任务开始执行：beanName:{},methodName:{},params:{}", beanName, methodName, params);
@@ -109,11 +120,18 @@ public class SchedulingRunnable implements Runnable{
             } else {
                 method.invoke(target);
             }
+
+            //日志记录
+            long times = System.currentTimeMillis() - startTime;
+            log.info("定时任务执行结束 - bean：{}，方法：{}，参数：{}，耗时：{} 毫秒", beanName, methodName, params, times);
+
+            this.setSysJobConfig(new Date(startTime),new Date(),times,beanName,methodName,true,"");
         } catch (Exception e) {
+            long times = System.currentTimeMillis() - startTime;
             log.error(String.format("定时任务执行异常 - bean：%s，方法：%s，参数：%s ", beanName, methodName, params), e);
+            this.setSysJobConfig(new Date(startTime),new Date(),times,beanName,methodName,false,e.getMessage());
         }
-        long times = System.currentTimeMillis() - startTime;
-        log.info("定时任务执行结束 - bean：{}，方法：{}，参数：{}，耗时：{} 毫秒", beanName, methodName, params, times);
+
     }
     @Override
     public boolean equals(Object o) {

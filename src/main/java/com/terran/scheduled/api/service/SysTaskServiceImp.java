@@ -22,7 +22,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @Service
-public class SysTaskServiceImpl  implements ISysTaskService{
+public class SysTaskServiceImp implements ISysTaskService{
     @Autowired
     private CronTaskRegistrar cronTaskRegistrar;
     @Autowired
@@ -53,6 +53,7 @@ public class SysTaskServiceImpl  implements ISysTaskService{
     public SysJobConfig saveAndFlush(SysJobConfig sysJobConfig) {
         return sysJobConfigDao.saveAndFlush(sysJobConfig);
     }
+    @Override
     public SysJobConfig findByBeanNameAndMethodNameAndMethodParams(String beanName,String method,String params) throws Exception{
         List<SysJobConfig> sysJobConfigs = sysJobConfigDao.findByBeanNameAndMethodNameAndMethodParams(beanName,method,params);
         if(sysJobConfigs!=null&&sysJobConfigs.size()>0) return sysJobConfigs.get(0);

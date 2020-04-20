@@ -1,4 +1,4 @@
-﻿package com.terran.log.model;
+package com.terran.scheduled.api.model;
 
 
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.util.Date;
 
 @Table(name = "sys_job_log")
-@Data
+@Data@Entity
 public class SysJobLog {
     @Id@GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -24,6 +24,9 @@ public class SysJobLog {
     @Column(name = "end_time")
     private Date endTime;
 
+    @Column(name = "time")
+    private long time;
+
     @Column(name = "title_name")
     private String titleName;
 
@@ -35,6 +38,9 @@ public class SysJobLog {
 
     @Column(name = "result_flag")
     private boolean resultFlag;
+
+    @Column(name = "throws_exception")
+    private String throwsException;
 
     @Column(name = "foreign_id")
     private Integer foreignId;
