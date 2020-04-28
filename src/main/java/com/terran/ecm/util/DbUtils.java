@@ -1,19 +1,19 @@
 package com.terran.ecm.util;
 
-import com.alibaba.druid.pool.DruidDataSource;
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
-import org.apache.commons.dbutils.QueryRunner;
-import org.apache.commons.dbutils.handlers.ArrayListHandler;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
  * DBUtils使用
+ * DbUtils参考
  * https://blog.csdn.net/simonforfuture/article/details/90480147
  * @throws Exception
  */
@@ -29,7 +29,6 @@ public class DbUtils {
      */
     public static DataSource setPoolDataSource(String connectPool,String driverClassName,
                                                 String url,String username,String password) throws Exception{
-        Connection connection = null;
         DataSource dataSource = null;
         if(connectPool.equals("druid")){
             Map<String,String> map = new HashMap<>();
@@ -37,7 +36,7 @@ public class DbUtils {
             map.put("url",url);
             map.put("username",username);
             map.put("password",password);
-                dataSource = DruidDataSourceFactory.createDataSource(map);
+            dataSource = DruidDataSourceFactory.createDataSource(map);
         }else if(connectPool.equals("hikari")){
             HikariConfig config = new HikariConfig();
             config.setDriverClassName(driverClassName);
@@ -48,14 +47,49 @@ public class DbUtils {
         }
         return dataSource;
     }
+
     /**
-     * 纯jdbc,无连接池,DriverManager
-     * https://www.cnblogs.com/noteless/p/10319296.html
+     * 采用jdbc，封装查询jdbc
+     * @param driverClassName
+     * @param url
+     * @param username
+     * @param password
+     * @param sql
+     * @param params
+     * @return
+     * @throws Exception
      */
-    public static Connection setJDBCDataSource(String driverClassName,
-                                                String url,String username,String password) throws Exception{
-        Class.forName(driverClassName);
-        return DriverManager.getConnection(url,username,password);
+    public static List<Map<String,Object>> getDataFormJdbc(String driverClassName,String url,String username,
+                                    String password,String sql,Object...params){
+        PreparedStatement pstmt = null;
+        ResultSet rs = null;
+        Connection connection = null;
+        List<Map<String, Object>> list = new ArrayList<Map<String, Object>>();
+        try {
+            Class.forName(driverClassName);
+            connection = DriverManager.getConnection(url,username,password);
+            pstmt = connection.prepareStatement(sql);
+            if(params !=null){
+                for (int i = 0;i < params.length ; i ++) {
+                    pstmt.setObject(i + 1,params[i]);
+                }
+            }
+            rs = pstmt.executeQuery();
+            ResultSetMetaData md = rs.getMetaData();
+            int columnCount = md.getColumnCount();
+            while (rs.next()) {
+                Map<String, Object> rowData = new HashMap<String, Object>();
+                for (int i = 1; i <= columnCount; i++) {
+                    rowData.put(md.getColumnName(i).toLowerCase(), rs.getString(i));
+                }
+                list.add(rowData);
+            }
+        }catch(Exception e){
+                e.printStackTrace();
+        }finally{
+            closeAll(connection,pstmt,rs);
+        }
+        return list;
     }
     /**
      * 关闭资源统一代码

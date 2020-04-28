@@ -1,16 +1,11 @@
 package com.terran.ecm.util;
 
-import org.apache.poi.util.StringUtil;
-
 import java.beans.*;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,7 +31,7 @@ public class XmlUtil {
         return retnVal;
     }
     /**
-     * 获取java持久化对象
+     * 获取java持久化对象,以map形式展示
      */
     public static Map<String,Object> getModelData(String xml) throws Exception{
             List datas = XmlUtil.objectXMLDecoderByString(xml);
