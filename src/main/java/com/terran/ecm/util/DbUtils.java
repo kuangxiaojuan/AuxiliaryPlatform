@@ -69,7 +69,7 @@ public class DbUtils {
             Class.forName(driverClassName);
             connection = DriverManager.getConnection(url,username,password);
             pstmt = connection.prepareStatement(sql);
-            if(params !=null){
+            if(params != null){
                 for (int i = 0;i < params.length ; i ++) {
                     pstmt.setObject(i + 1,params[i]);
                 }
