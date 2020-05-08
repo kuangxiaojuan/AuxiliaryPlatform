@@ -16,9 +16,9 @@ public class TestMethod {
         System.out.println(f);
         System.out.println("123654");
     }
-    //仅第一次生效
+    /*//仅第一次生效
     @Timer(name="测试自动定时任务",cronExpression = "10 * * * * ? ",remark = "XXX")
     public void test2() throws Exception{
         System.out.println("--------------业务---------------");
-    }
+    }*/
 }

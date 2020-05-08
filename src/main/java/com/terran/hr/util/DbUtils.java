@@ -1,4 +1,4 @@
-package com.terran.ecm.util;
+package com.terran.hr.util;
 
 import com.alibaba.druid.pool.DruidDataSourceFactory;
 import com.zaxxer.hikari.HikariConfig;
@@ -90,6 +90,11 @@ public class DbUtils {
             closeAll(connection,pstmt,rs);
         }
         return list;
+    }
+    public static Connection getConnection(String driverClassName,String url,String username,
+                                    String password) throws Exception{
+        Class.forName(driverClassName);
+        return DriverManager.getConnection(url,username,password);
     }
     /**
      * 关闭资源统一代码

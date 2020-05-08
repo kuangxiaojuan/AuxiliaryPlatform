@@ -1,4 +1,4 @@
-package com.terran.ecm.util;
+package com.terran.hr.util;
 
 import java.beans.*;
 import java.io.ByteArrayInputStream;

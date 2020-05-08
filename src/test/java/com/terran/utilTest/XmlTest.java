@@ -1,18 +1,12 @@
 package com.terran.utilTest;
 
-import com.terran.ecm.util.DbUtils;
-import com.terran.ecm.util.XmlUtil;
+import com.terran.hr.util.DbUtils;
+import com.terran.hr.util.XmlUtil;
 import com.terran.scheduled.api.model.SysJobConfig;
-import oracle.sql.CLOB;
 import org.junit.jupiter.api.Test;
+import org.springframework.util.StringUtils;
 
-import javax.xml.crypto.Data;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -48,6 +42,19 @@ public class XmlTest {
     }
     @Test
     public void test2() throws Exception{
+        String oldHrId = "100013070A,1000010B,1000010A,1000010C";
+        String params = null;
+        if(!StringUtils.isEmpty(oldHrId)){
+            if(oldHrId.indexOf(",")>-1){
+                String[] oldHrIds = oldHrId.split(",");
+                oldHrId = "";
+                for (String hrId : oldHrIds) {
+                    oldHrId += "'"+hrId+"',";
+                }
+                oldHrId = oldHrId.substring(0,oldHrId.length()-1);
+                params = " in ("+oldHrId+")";
+            }else params = "='"+oldHrId+"'";
+        }
         //根据需要转移的部门id获取该部门下的所有人
         String sql = "select u.a0100 a0100," +
                 " u.b0110 b0110," +
@@ -56,7 +63,7 @@ public class XmlTest {
                 " u.e0127 e0127," +
                 " u.a0101 a0101 " +
                 "from usra01 u inner join ( " +
-                "select * from organization start with codeitemid='100013070A'  " +
+                "select * from organization start with codeitemid "+params+"  " +
                 "connect by prior codeitemid=parentid and codesetid='UM' " +
                 "and end_date = to_date('9999-12-31','yyyy-MM-dd')) o " +
                 "on u.e0122 = o.codeitemid";
@@ -68,6 +75,7 @@ public class XmlTest {
             System.out.println(people.get("e01a1"));
             System.out.println(people.get("e0127"));
             System.out.println(people.get("a0101"));
+
         }
     }
     public static void main(String[] args) {
